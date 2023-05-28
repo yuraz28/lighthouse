@@ -1,7 +1,7 @@
 from uuid import UUID
 from pydantic import BaseModel
 import orjson
-from typing import Optional
+from typing import Optional, List
 
 
 class BaseSchema(BaseModel):
@@ -18,7 +18,6 @@ class UserAllInfo(BaseSchema):
     username: str
     password_hash: str
     is_organization: bool = False
-    is_admin: bool
 
 
 class OrgAllInfo(BaseSchema):
@@ -26,7 +25,6 @@ class OrgAllInfo(BaseSchema):
     name: str
     password_hash: str
     is_organization: bool = True
-    is_admin: bool = False
 
 
 class UserAuth(BaseSchema):
@@ -70,12 +68,17 @@ class CreateCourse(BaseSchema):
 
 class CertificateAllInfo(BaseSchema):
     user_id: UUID
-    name: str
-    link: str
+    course_id: UUID
 
 
 class AddMyCourse(BaseSchema):
     user_id: UUID
     course_id: UUID
 
-
+#
+# class CoursesModel(BaseModel):
+#     id: UUID
+#
+#
+# class FullCourses(BaseModel):
+#     courses: List[CoursesModel]

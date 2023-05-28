@@ -93,8 +93,21 @@ async def create_course(course: CreateCourse, user=Depends(get_user_current)):
 @router.delete('/delete_courses/{courses_id}')
 async def delete_courses(courses_id: UUID, user=Depends(get_user_current)):
     if user.is_organization:
-        courses = await Course.objects.get(id=courses_id)
-        await courses.delete()
+        course = await Course.objects.get(id=courses_id)
+        passed = await Passed.objects.filter(course_id=course.id).all()
+        if passed:
+            for pas in passed:
+                await pas.delete()
+        process = await Processe.objects.filter(course_id=course.id).all()
+        if process:
+            for pr in process:
+                await pr.delete()
+        certificate = await Certificate.objects.filter(course_id=course.id).all()
+        if certificate:
+            for cer in certificate:
+                await cer.delete()
+        await course.delete()
+
         return Response(status_code=200, content="Course deleted")
     return Response(status_code=404, content="User is not organization")
 
@@ -132,27 +145,47 @@ async def passed_course(course_id: UUID, user=Depends(get_user_current)):
     course = await Course.objects.get(id=course_id)
     if course.is_certificate:
         await Certificate.objects.create(
-            **(CertificateAllInfo(user_id=user.id, name=course.name, link=course.link)).dict())
+            **(CertificateAllInfo(user_id=user.id, course_id=course_id)).dict())
     await Passed.objects.create(**(AddMyCourse(user_id=user.id, course_id=course_id)).dict())
+    process = await Processe.objects.get(course_id=course_id)
+    await process.delete()
     return Response(status_code=200, content="all ok")
 
 
 @router.get('/my_passed_courses')
 async def get_passed_courses(user=Depends(get_user_current)):
-    passed_courses = await Passed.objects.filter(user_id=user.id).all()
-    return passed_courses
+    my_passed_courses = await Passed.objects.filter(user_id=user.id).all()
+    courses = []
+    for i in my_passed_courses:
+        course = await Course.objects.get(id=i.course_id)
+        courses.append(course)
+    return courses
 
 
-@router.delete('/delete_my_passed_courses/{courses_id}')
-async def delete_passed_courses(courses_id: UUID, user=Depends(get_user_current)):
+@router.delete('/delete_courses_with_me/{course_id}')
+async def delete_passed_courses(course_id: UUID, user=Depends(get_user_current)):
     if not user.is_organization:
-        passed_courses = await Passed.objects.filter(user_id=courses_id).all()
-        await passed_courses.delete()
-        return Response(status_code=200, content="Course is not passed")
+        process = await Processe.objects.filter(course_id=course_id).filter(user_id=user.id).all()
+        if process:
+            await process[0].delete()
+        else:
+            passed = await Passed.objects.filter(course_id=course_id).filter(user_id=user.id).all()
+            if passed:
+                await passed[0].delete()
+            certificate = await Certificate.objects.filter(course_id=course_id).filter(user_id=user.id).all()
+            if certificate:
+                await certificate[0].delete()
+        # passed_courses = await Passed.objects.filter(user_id=user.id).filter(course_id=course_id).first()
+        # await passed_courses.delete()
+        return Response(status_code=200, content="Course is not my")
     return Response(status_code=404, content="User is organization")
 
 
 @router.get('/my_certificates')
 async def get_certificates(user=Depends(get_user_current)):
-    certificates = await Certificate.objects.filter(user_id=user.id).all()
-    return certificates
+    my_certificates = await Certificate.objects.filter(user_id=user.id).all()
+    courses = []
+    for i in my_certificates:
+        course = await Course.objects.get(id=i.course_id)
+        courses.append(course)
+    return courses

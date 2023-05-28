@@ -29,7 +29,6 @@ def upgrade():
     sa.Column('username', sa.String(length=50), nullable=False, unique=True),
     sa.Column('password_hash', sa.String(length=128), nullable=False),
     sa.Column('is_organization', sa.BOOLEAN, nullable=False),
-    sa.Column('is_admin', sa.BOOLEAN, nullable=False),
     sa.PrimaryKeyConstraint('id'),
     )
 

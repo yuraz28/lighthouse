@@ -17,7 +17,6 @@ class User(ormar.Model):
     username: str = ormar.String(max_length=50, unique=True)
     password_hash: str = ormar.String(max_length=128)
     is_organization: bool = ormar.Boolean(nullable=False)
-    is_admin: bool = ormar.Boolean(nullable=False)
 
     @classmethod
     async def get_user(cls, username):
@@ -49,8 +48,7 @@ class Certificate(ormar.Model):
 
     id: UUID = ormar.UUID(primary_key=True, default=uuid4)
     user_id: UUID = ormar.UUID(nullable=False)
-    name: str = ormar.String(nullable=False, max_length=50)
-    link: str = ormar.Text(nullable=True)
+    course_id: UUID = ormar.UUID(nullable=False)
 
 
 class Processe(ormar.Model):

@@ -21,8 +21,7 @@ def upgrade() -> None:
     op.create_table('certificates',
     sa.Column('id', sa.CHAR(32), nullable=False),
     sa.Column('user_id', sa.CHAR(32), nullable=False),
-    sa.Column('name', sa.String(length=100), nullable=False),
-    sa.Column('link', sa.TEXT, nullable=True),
+    sa.Column('course_id', sa.CHAR(32), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
