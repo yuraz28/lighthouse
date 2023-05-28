@@ -3,7 +3,7 @@ import ormar
 import sqlalchemy
 
 mysql_dsn = (
-    "mysql+mysqlconnector://root:tanki127)@localhost/kod23"
+    "mysql+mysqlconnector://root:password@localhost/kod23"
 )
 
 metadata = sqlalchemy.MetaData()
